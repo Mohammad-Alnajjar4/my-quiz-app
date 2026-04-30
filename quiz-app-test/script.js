@@ -126,6 +126,22 @@ startBtn.addEventListener('click', startQuiz);
 nextBtn.addEventListener('click', loadNextQuestion);
 retryBtn.addEventListener('click', resetQuiz);
 
+// Navigation Listeners
+document.getElementById('nav-home').addEventListener('click', (e) => {
+  e.preventDefault();
+  window.location.reload(); // Quickest way to completely reset to home
+});
+
+document.getElementById('nav-about').addEventListener('click', (e) => {
+  e.preventDefault();
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('about-screen').classList.add('active');
+});
+
+document.getElementById('about-back-btn').addEventListener('click', () => {
+  window.location.reload();
+});
+
 function startQuiz() {
   const usernameInput = document.getElementById('username-input');
   if (usernameInput.value.trim() !== '') {
