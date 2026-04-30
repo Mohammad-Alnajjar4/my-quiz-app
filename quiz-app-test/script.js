@@ -234,42 +234,59 @@ function showResults() {
     resultMessage.innerText = 'Review the basics of HTML and CSS and try again.';
   }
   
-  saveScoreLocally();
+  saveScoreLive();
 }
 
-function saveScoreLocally() {
-  // Offline local storage
-  let savedScores = JSON.parse(localStorage.getItem('quizScores')) || [];
-  savedScores.push({ username: currentUser, score: score });
-  
-  // Sort and keep top 10
-  savedScores.sort((a, b) => b.score - a.score);
-  savedScores = savedScores.slice(0, 10);
-  
-  localStorage.setItem('quizScores', JSON.stringify(savedScores));
-  
-  fetchLocalLeaderboard();
-}
-
-function fetchLocalLeaderboard() {
+async function saveScoreLive() {
   const leaderboardList = document.getElementById('leaderboard-list');
-  const savedScores = JSON.parse(localStorage.getItem('quizScores')) || [];
-  
-  leaderboardList.innerHTML = ''; 
-  
-  if (savedScores.length === 0) {
-    leaderboardList.innerHTML = '<p style="text-align: center; color: var(--text-muted);">No scores yet. Be the first!</p>';
-    return;
+  leaderboardList.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Saving your score...</p>';
+
+  try {
+    const response = await fetch('/api/saveScore', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: currentUser, score: score })
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to save score');
+    }
+  } catch (error) {
+    console.error("Error saving score:", error);
   }
   
-  savedScores.forEach((entry, index) => {
-    leaderboardList.innerHTML += `
-      <div style="display: flex; justify-content: space-between; padding: 0.5rem 1rem; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid var(--border);">
-        <span><strong>#${index + 1}</strong> ${entry.username}</span>
-        <span style="color: var(--accent); font-weight: 600;">${entry.score} pts</span>
-      </div>
-    `;
-  });
+  fetchLiveLeaderboard();
+}
+
+async function fetchLiveLeaderboard() {
+  const leaderboardList = document.getElementById('leaderboard-list');
+  leaderboardList.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Loading live scores...</p>';
+  
+  try {
+    const response = await fetch('/api/getLeaderboard');
+    if (!response.ok) throw new Error('Failed to fetch leaderboard');
+    
+    const liveScores = await response.json();
+    
+    leaderboardList.innerHTML = ''; 
+    
+    if (!liveScores || liveScores.length === 0) {
+      leaderboardList.innerHTML = '<p style="text-align: center; color: var(--text-muted);">No scores yet. Be the first!</p>';
+      return;
+    }
+    
+    liveScores.forEach((entry, index) => {
+      leaderboardList.innerHTML += `
+        <div style="display: flex; justify-content: space-between; padding: 0.5rem 1rem; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid var(--border);">
+          <span><strong>#${index + 1}</strong> ${entry.username}</span>
+          <span style="color: var(--accent); font-weight: 600;">${entry.score} pts</span>
+        </div>
+      `;
+    });
+  } catch (error) {
+    console.error("Error fetching live leaderboard:", error);
+    leaderboardList.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Could not load leaderboard. Please check your Supabase configuration.</p>';
+  }
 }
 
 function resetQuiz() {
