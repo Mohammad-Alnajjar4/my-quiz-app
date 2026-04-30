@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Interactive Quiz</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <header>
+    <h1>Login</h1>
+  </header>
+
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="login.html">Login</a>
+    <a href="register.html">Register</a>
+    <a href="leaderboard.html">Leaderboard</a>
+  </nav>
+
+  <main>
+    <section>
+      <h2>Login to your account</h2>
+      <form onsubmit="handleLogin(event)">
+        <input type="text" id="log-username" placeholder="Username" required>
+        <input type="password" id="log-password" placeholder="Password" required>
+        <span id="log-error" class="error"></span>
+        <button type="submit">Login</button>
+      </form>
+    </section>
+  </main>
+
+  <footer>
+    &copy; 2026 Quiz App Project
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

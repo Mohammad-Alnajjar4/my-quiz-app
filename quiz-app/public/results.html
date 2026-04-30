@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Results - Interactive Quiz</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <header>
+    <h1>Quiz Complete!</h1>
+  </header>
+
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="login.html">Login</a>
+    <a href="register.html">Register</a>
+    <a href="leaderboard.html">Leaderboard</a>
+  </nav>
+
+  <main>
+    <section style="text-align: center;">
+      <h2>Great job finishing the quiz!</h2>
+      <h3>Your Score: <span id="score-display" style="color: var(--primary); font-size: 2em;"></span></h3>
+      <br>
+      <a href="leaderboard.html" style="text-decoration: none;">
+        <button style="width: auto;">View Leaderboard</button>
+      </a>
+      <a href="quiz.html" style="text-decoration: none;">
+        <button style="width: auto; background: var(--text); margin-left: 10px;">Try Again</button>
+      </a>
+    </section>
+  </main>
+
+  <footer>
+    &copy; 2026 Quiz App Project
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
