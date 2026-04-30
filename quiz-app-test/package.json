@@ -2,6 +2,7 @@
   "name": "quiz-app-test",
   "version": "1.0.0",
   "description": "Quiz App with Supabase and Vercel",
+  "type": "module",
   "main": "script.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
