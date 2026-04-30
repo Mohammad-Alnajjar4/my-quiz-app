@@ -1,22 +1,3 @@
-// === SUPABASE INITIALIZATION ===
-// Here is your project URL. You MUST replace "YOUR_ANON_KEY_HERE" with your actual anon key from the Supabase Dashboard!
-// Go to Supabase Dashboard -> Project Settings -> API -> anon public key
-const SUPABASE_URL = 'https://vgrbteilsrqyttgvdoki.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZncmJ0ZWlsc3JxeXR0Z3Zkb2tpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0OTY0MjksImV4cCI6MjA5MzA3MjQyOX0.EZk9GbJHjoOmFlDTo5DvPGNWYPQdVa0zWfqFhiF9YF0';
-
-let supabase = null;
-try {
-  if (window.supabase) {
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  } else {
-    console.warn("Supabase library not found. Leaderboard and saves will be disabled.");
-  }
-} catch (error) {
-  console.error("Failed to initialize Supabase:", error);
-}
-
-// ===============================
-
 let currentUser = "Guest";
 
 const questions = [
@@ -253,77 +234,43 @@ function showResults() {
     resultMessage.innerText = 'Review the basics of HTML and CSS and try again.';
   }
   
-  // Save to Supabase and then fetch Leaderboard
-  saveScoreToSupabase();
+  saveScoreLocally();
 }
 
-async function saveScoreToSupabase() {
-  if (!supabase) {
-    console.warn("Supabase not initialized, skipping score save.");
-    fetchLeaderboard();
-    return;
-  }
+function saveScoreLocally() {
+  // Offline local storage
+  let savedScores = JSON.parse(localStorage.getItem('quizScores')) || [];
+  savedScores.push({ username: currentUser, score: score });
   
-  try {
-    const { data, error } = await supabase
-      .from('scores')
-      .insert([
-        { username: currentUser, score: score, date: new Date().toISOString() }
-      ]);
-      
-    if (error) throw error;
-    console.log("Score saved successfully!");
-  } catch (error) {
-    console.error("Error saving score to Supabase:", error.message);
-  }
+  // Sort and keep top 10
+  savedScores.sort((a, b) => b.score - a.score);
+  savedScores = savedScores.slice(0, 10);
   
-  // Always fetch leaderboard after saving
-  fetchLeaderboard();
+  localStorage.setItem('quizScores', JSON.stringify(savedScores));
+  
+  fetchLocalLeaderboard();
 }
 
-async function fetchLeaderboard() {
+function fetchLocalLeaderboard() {
   const leaderboardList = document.getElementById('leaderboard-list');
+  const savedScores = JSON.parse(localStorage.getItem('quizScores')) || [];
   
-  if (!supabase) {
-    leaderboardList.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Database disconnected. Leaderboard unavailable.</p>';
+  leaderboardList.innerHTML = ''; 
+  
+  if (savedScores.length === 0) {
+    leaderboardList.innerHTML = '<p style="text-align: center; color: var(--text-muted);">No scores yet. Be the first!</p>';
     return;
   }
-
-  leaderboardList.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Loading live scores...</p>';
   
-  try {
-    // Get top 10 scores
-    const { data, error } = await supabase
-      .from('scores')
-      .select('username, score')
-      .order('score', { ascending: false })
-      .limit(10);
-      
-    if (error) throw error;
-    
-    leaderboardList.innerHTML = ''; // Clear loading
-    
-    if (data.length === 0) {
-      leaderboardList.innerHTML = '<p style="text-align: center; color: var(--text-muted);">No scores yet. Be the first!</p>';
-      return;
-    }
-    
-    data.forEach((entry, index) => {
-      leaderboardList.innerHTML += `
-        <div style="display: flex; justify-content: space-between; padding: 0.5rem 1rem; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid var(--border);">
-          <span><strong>#${index + 1}</strong> ${entry.username}</span>
-          <span style="color: var(--accent); font-weight: 600;">${entry.score} pts</span>
-        </div>
-      `;
-    });
-    
-  } catch (error) {
-    console.error("Error fetching leaderboard:", error.message);
-    leaderboardList.innerHTML = '<p style="text-align: center; color: var(--wrong);">Failed to load leaderboard. Check API Keys.</p>';
-  }
+  savedScores.forEach((entry, index) => {
+    leaderboardList.innerHTML += `
+      <div style="display: flex; justify-content: space-between; padding: 0.5rem 1rem; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid var(--border);">
+        <span><strong>#${index + 1}</strong> ${entry.username}</span>
+        <span style="color: var(--accent); font-weight: 600;">${entry.score} pts</span>
+      </div>
+    `;
+  });
 }
-
-console.log("Quiz script completely loaded!");
 
 function resetQuiz() {
   resultsScreen.classList.remove('active');
