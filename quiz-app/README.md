@@ -1,4 +1,4 @@
-# Interactive Quiz Web Application 🚀
+# Interactive Quiz Web Application 
 
 ## Overview
 This is a fun and interactive quiz application built using **Node.js, Express, SQLite, and Vanilla HTML/CSS/JS**. 
